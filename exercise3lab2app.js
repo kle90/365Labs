@@ -102,7 +102,59 @@ async function deleteConvo( req, res ) {
 }
 app.delete( '/conversations/:id', deleteConvo );
 
+async function getMsgs( req, res ) {
 
+    console.log( "Request to get all messages from the database" );
+
+    try {
+        const connection = await pool.getConnection();
+        console.log( "Successfully connected to the database" );
+        const sql = 'SELECT * FROM lab2_messages WHERE convo_id=(?)';
+        const convoID = [req.params.id];
+        const [ rows , fields ] = await connection.query( sql, [convoID] );
+        res.status( 200 ).send( rows );
+    } catch( err ) {
+        res.status( 500 ).send( `ERROR getting messages: ${ err }` )
+    }
+}
+app.get( '/conversations/:id/messages', getMsgs );
+
+async function getAMsg( req, res ) {
+
+    console.log( "Request to get a message to the database" );
+
+    try {
+        const connection = await pool.getConnection();
+        console.log( "Successfully connected to the database" );
+        const sql = 'SELECT * FROM lab2_messages WHERE message_id=(?)';
+        const convoID = [req.params.id];
+        const [ rows , fields ] = await connection.query( sql, [convoID] );
+        console.log('row index 0 is ', rows[0].message)
+        res.status( 200 ).send( rows[0].message );
+    } catch( err ) {
+        res.status( 500 ).send( `ERROR getting message: ${ err }` )
+    }
+}
+app.get( '/conversations/:id/messages/:id', getAMsg );
+
+
+async function postMsg( req, res ) {
+
+    console.log( "Request to add a message to the database" );
+
+    try {
+        const connection = await pool.getConnection();
+        console.log( "Successfully connected to the database" );
+        const sql = 'INSERT INTO lab2_messages (message, convo_id) VALUES (?, ?)'
+        const message = [req.body.message];
+        const convoID = [req.params.id];
+        const [ rows, fields ] = await connection.query( sql, [message, convoID] );
+        res.status( 200 ).send( rows );
+    } catch( err ) {
+        res.status( 500 ).send( `ERROR posting message: ${ err }` )
+    }
+}
+app.post( '/conversations/:id/messages', postMsg );
 
 const port = process.env.PORT || 3000;
 app.listen( port, () => {
