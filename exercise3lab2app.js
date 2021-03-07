@@ -111,8 +111,13 @@ async function getMsgs( req, res ) {
         console.log( "Successfully connected to the database" );
         const sql = 'SELECT * FROM lab2_messages WHERE convo_id=(?)';
         const convoID = [req.params.id];
-        const [ rows , fields ] = await connection.query( sql, [convoID] );
-        res.status( 200 ).send( rows );
+        const [ rows, fields ] = await connection.query( sql, [convoID] );
+        console.log( rows.length )
+        for (i = 0; i < rows.length; i++) {
+            res.status( 200 ).send( rows[i].message );
+        }
+        // res.status( 200 ).send( rows[0].message )
+
     } catch( err ) {
         res.status( 500 ).send( `ERROR getting messages: ${ err }` )
     }
